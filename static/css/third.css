@@ -1,0 +1,72 @@
+*{
+    padding: 0;
+    margin: 0;
+    font-family: '微软雅黑';
+}
+header{
+    height: 300px;
+    background-image: url("../images/banner.png");
+    background-size: 100%;
+    background-repeat: no-repeat;
+    position: relative;
+}
+header img{
+    position: absolute;
+    left: 50%;
+    top:25%;
+    margin-left: -271px;
+}
+div#rule{
+    margin-top: 7%;
+}
+div#rule img{
+    padding-left: 20px;
+    width: 20%;
+}
+p{
+    font-size: 2em;
+}
+#rule>p{
+    color: rgb(223 ,60 ,92);
+    position: absolute;
+    top:22.5%;
+    left: 6%;
+}
+.instruction{
+    width: 96%;
+    margin-top: -2px;
+    margin-left: 2%;
+    border: 1px solid silver;
+    box-shadow:0 2px 15px 5px #e3e3e3;
+    height: 500px;
+    border-radius: 2px;
+}
+.instruction div{
+    width:70%;
+    padding-top:30px ;
+    height:400px;
+    margin-left:15%;
+}
+.instruction p{
+    text-align: left;
+    color: rgb(162 ,95 ,243);
+    line-height: 2;
+    font-weight: 600;
+}
+.instruction p:first-child{
+    font-size: 2.5em;
+    text-align: center;
+}
+@media (min-width:1200px) {
+    #rule>p{
+        top:65%;
+        left: 7%;
+    }
+    .instruction{
+        margin-top: -5px;
+    }
+    .instruction div{
+        height: 400px;
+        padding-top: 25px;
+    }
+}

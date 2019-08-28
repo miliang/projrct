@@ -1,0 +1,41 @@
+{if empty($_W['fans']['follow'])}
+    <div class="KF_Back">
+		<a href="javascript:void(0);" class="linkKeFu">
+			<i class="iconfont kefu" >&#xe60e;</i>
+			<p>关注</p>
+			<div class="code_wrap">
+		 		<div class="gray"></div>
+				<div class="link-KF">
+					<div class="con-ma">
+						<!--<p class="s-em">长按识别二维码<i class="iconfont g-em">&#xe610;</i></p>-->
+						<p class="s-em"  style="padding:5vw 0;height:40px;line-height:40px">生活在宜宾<i class="iconfont g-em">&#xe610;</i></p>
+						<p class="s-em"  style="padding:4vw 0 7vw;height:20px;line-height:20px">爱上维他命<i class="iconfont g-em"></i></p>
+						<!-- <img src="{$_W['account']['qrcode']}"  /> -->
+						<img src="../attachment/dingyue_qr.jpg"/>
+					</div>
+				</div>
+			</div>
+		</a>
+	</div>
+
+    <script>
+    	$(".con-ma,.g-em,.gray .weui_cell").click(function(event){
+			// $(".gray").hide();
+			$(".link-KF").hide();
+			$(".gray_a").hide();
+			$(".link-FF").hide();
+			//$(".code_wrap").hide();
+			event.stopPropagation();
+		});
+
+		$(".linkKeFu").bind('click.myfunction',function(event){
+			// $(".gray").show();
+			// $(".gray").css("height",$(document).height());
+			$(".link-KF").css("top",$(window).height()/2-178);
+			$(".link-KF").show();
+			/*event.stopPropagation();*/
+		});
+    </script>
+{/if}
+
+	

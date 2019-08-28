@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--<body>-->
+<header>
+<ul class='head'>
+<li onclick='javascript:history.back()'><span><</span></li>
+<li><h1>订单管理</h1></li>
+<li>更多</li>
+</ul>
+</header>
+<section>
+<nav id='nav'>
+{ifp 'order.list.status1'}
+<li {if $_W['routes']=='order.list.status1'}class="active"{/if}>
+<a href="{php echo merchUrl('order/list/status1')}">待发货 <span class='text-danger status1 on'>--</span></a>
+</li>
+{/if}
+
+{ifp 'order.list.status2'}
+<li {if $_W['routes']=='order.list.status2'}class="active"{/if}>
+<a href="{php echo merchUrl('order/list/status2')}">待收货 <span class='text-warning status2'>--</span></a>
+</li>
+{/if}
+
+{ifp 'order.list.status0'}
+<li {if $_W['routes']=='order.list.status0'}class="active"{/if}>
+<a href="{php echo merchUrl('order/list/status0')}">待付款 <span class="status0">--</span></a>
+</li>
+{/if}
+
+{ifp 'order.list.status3'}
+<li {if $_W['routes']=='order.list.status3'}class="active"{/if}>
+<a href="{php echo merchUrl('order/list/status3')}">已完成 <span class='text-primary status3'>--</span></a>
+</li>
+{/if}
+
+{ifp 'order.list.status_1'}
+<li {if $_W['routes']=='order.list.status_1'}class="active"{/if}>
+<a href="{php echo merchUrl('order/list/status_1')}">已关闭 <span class="status_1">--</span></a>
+</li>
+{/if}
+
+{ifp 'order.list.main'}
+<li {if $_W['routes']=='order.list' && $_GPC['status']=='' && $_GPC['refund']!='1'}class="active"{/if}>
+<a href="{php echo merchUrl('order/list')}" >全部订单<span class="all">--</span></a>
+</li>
+{/if}
+
+{ifp 'order.list.status4'}
+<li {if $_W['routes']=='order.list.status4'}class="active"{/if}>
+<a href="{php echo merchUrl('order/list/status4')}">维权申请 <span class='text-danger status4'>--</span></a>
+</li>
+{/if}
+
+{ifp 'order.list.status5'}
+<li {if $_W['routes']=='order.list.status5'}class="active"{/if}>
+<a href="{php echo merchUrl('order/list/status5')}">维权完成 <span class="status5">--</span></a>
+</li>
+{/if}
+</nav>
+<select name='paytype' class='form-control input-sm select-md' style='width:85px;padding:0 5px;'>
+<option value='' {if $_GPC['paytype']==''}selected{/if}>支付方式</option>
+{loop $paytype $key $type}
+<option value='{$key}' {if $_GPC['paytype'] == '$key'} selected='selected' {/if}>{$type['name']}</option>
+{/loop}
+</select>
+<select name='searchtime'  class='form-control  input-sm select-md'   style='width:85px;padding:0 5px;'  >
+<option value=''>不按时间</option>
+<option value='create' {if $_GPC['searchtime']=='create'}selected{/if}>下单时间</option>
+<option value='pay' {if $_GPC['searchtime']=='pay'}selected{/if}>付款时间</option>
+<option value='send' {if $_GPC['searchtime']=='send'}selected{/if}>发货时间</option>
+<option value='finish' {if $_GPC['searchtime']=='finish'}selected{/if}>完成时间</option>
+</select>
+<input type='text' class='form-control input-sm'  name='keyword' value='{$_GPC['keyword']}' placeholder='请输入关键词'/>
+<span class='input-group-btn'>
+<button class='btn btn-sm btn-primary' type='submit'> 搜索</button>
+</span>
+<div id='contentBox'>
+<div>
+{if count($list)>0}
+<ul>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+{loop $list $item}
+<li>
+<div>订单编号:  {$item['ordersn']}
+{if !empty($item['refundstate'])}<label class='label label-danger'>{$r_type[$item['rtype']]}申请</label>{/if}
+{if !empty($item['refundstate']) && $item['rstatus'] == 4}<label class='label label-default'>客户退回物品</label>{/if}
+</div>
+<div rowspan="{php echo count($item['goods'])}">
+{php echo date('Y-m-d',$item['createtime'])}<br/>{php echo date('H:i:s',$item['createtime'])}
+</div>
+<span id="spanIcon">></span>
+
+</li>
+    {/loop}
+
+
+<li>
+<img src="{php echo tomedia($g['thumb'])}">
+<div>{$g['title']}{if !empty($g['optiontitle'])}<br/>{$g['optiontitle']}{/if}<br/>{$g['goodssn']}</div>
+<div>{php echo number_format($g['realprice']/$g['total'],2)}<br/>x{$g['total']}</div>
+</li>
+
+<li>
+<table class="table">
+{if $k==0}
+<tr>
+<td>订单状态</td>
+<td   rowspan="{php echo count($item['goods'])}" >
+{if $item['statusvalue'] > 0}
+<label class='label label-{$item['css']}'>{$item['paytype']}</label>
+{else if $item['statusvalue'] == 0}
+{if $item['paytypevalue']!=3}
+<label class='label label-default'>未支付</label>
+{else}
+<label class='label label-primary'>货到付款</label>
+{/if}
+{else if $item['statusvalue'] == -1}
+<label class='label label-default'>{$item['paytype']}</label>
+{/if}
+<br/>
+
+
+<span style='margin-top:5px;display:block;'>{$item['dispatchname']}</span>
+</td>
+</tr>
+<tr>
+<td>买家昵称</td>
+<td rowspan="{php echo count($item['goods'])}"  style='text-align: center;' >
+{ifp 'member.member.edit'}
+<a href="{php echo merchUrl('member/list/detail',array('id'=>$item['mid']))}"> {$item['nickname']}</a>
+{else}
+{$item['nickname']}
+{/if}
+
+<br/>
+{$item['addressdata']['realname']}<br/>{$item['addressdata']['mobile']}</td>
+</tr>
+<tr>
+<td>配送方式</td>
+<td rowspan="{php echo count($item['goods'])}">
+{if $item['statusvalue'] > 0}
+<label class='label label-{$item['css']}'>{$item['paytype']}</label>
+{else if $item['statusvalue'] == 0}
+{if $item['paytypevalue']!=3}
+<label class='label label-default'>未支付</label>
+{else}
+<label class='label label-primary'>货到付款</label>
+{/if}
+{else if $item['statusvalue'] == -1}
+<label class='label label-default'>{$item['paytype']}</label>
+{/if}
+<br/>
+
+
+<span style='margin-top:5px;display:block;'>{$item['dispatchname']}</span>
+
+</td>
+</tr>
+<tr>
+<td colspan="2" rowspan="{php echo count($item['goods'])}">
+共{$g['total']}件商品，实付：￥{php echo number_format($item['price'],2)} <a data-toggle='popover' data-html='true' data-placement='top'
+data-content="<table style='width:100%;'>
+<tr>
+<td  style='border:none;text-align:right;'>商品小计：</td>
+<td  style='border:none;text-align:right;;'>￥{php echo number_format( $item['goodsprice'] ,2)}</td>
+</tr>
+<tr>
+<td  style='border:none;text-align:right;'>运费：</td>
+<td  style='border:none;text-align:right;;'>￥{php echo number_format( $item['olddispatchprice'],2)}</td>
+</tr>
+{if $item['discountprice']>0}
+<tr>
+<td  style='border:none;text-align:right;'>会员折扣：</td>
+<td  style='border:none;text-align:right;;'>-￥{php echo number_format( $item['discountprice'],2)}</td>
+</tr>
+{/if}
+{if $item['deductprice']>0}
+<tr>
+<td  style='border:none;text-align:right;'>积分抵扣：</td>
+<td  style='border:none;text-align:right;;'>-￥{php echo number_format( $item['deductprice'],2)}</td>
+</tr>
+{/if}
+{if $item['deductcredit2']>0}
+<tr>
+<td  style='border:none;text-align:right;'>余额抵扣：</td>
+<td  style='border:none;text-align:right;;'>-￥{php echo number_format( $item['deductcredit2'],2)}</td>
+</tr>
+{/if}
+{if $item['deductenough']>0}
+<tr>
+<td  style='border:none;text-align:right;'>商城满额立减：</td>
+<td  style='border:none;text-align:right;;'>-￥{php echo number_format( $item['deductenough'],2)}</td>
+</tr>
+{/if}
+{if $item['merchdeductenough']>0}
+<tr>
+<td  style='border:none;text-align:right;'>商户满额立减：</td>
+<td  style='border:none;text-align:right;;'>-￥{php echo number_format( $item['merchdeductenough'],2)}</td>
+</tr>
+{/if}
+{if $item['couponprice']>0}
+<tr>
+<td  style='border:none;text-align:right;'>优惠券优惠：</td>
+<td  style='border:none;text-align:right;;'>-￥{php echo number_format( $item['couponprice'],2)}</td>
+</tr>
+{/if}
+{if $item['isdiscountprice']>0}
+<tr>
+<td  style='border:none;text-align:right;'>促销优惠：</td>
+<td  style='border:none;text-align:right;;'>-￥{php echo number_format( $item['isdiscountprice'],2)}</td>
+</tr>
+{/if}
+{if intval($item['changeprice'])!=0}
+<tr>
+<td  style='border:none;text-align:right;'>卖家改价：</td>
+<td  style='border:none;text-align:right;;'><span style='{if 0<$item['changeprice']}color:green{else}color:red{/if}'>{if 0<$item['changeprice']}+{else}-{/if}￥{php echo number_format(abs($item['changeprice']),2)}</span></td>
+</tr>
+{/if}
+{if intval($item['changedispatchprice'])!=0}
+<tr>
+<td  style='border:none;text-align:right;'>卖家改运费：</td>
+<td  style='border:none;text-align:right;;'><span style='{if 0<$item['changedispatchprice']}color:green{else}color:red{/if}'>{if 0<$item['changedispatchprice']}+{else}-{/if}￥{php echo abs($item['changedispatchprice'])}</span></td>
+</tr>
+{/if}
+<tr>
+<td style='border:none;text-align:right;'>应收款：</td>
+<td  style=`'border:none;text-align:right;color:green;'>￥{php echo number_format($item['price'],2)}</td>
+</tr>
+
+</table>
+"
+&gt;<i class='fa fa-question-circle'></i></a>
+{if $item['dispatchprice']>0}
+<br/>(含运费:￥{php echo number_format( $item['dispatchprice'],2)})
+{/if}
+</td>
+
+</tr>
+<tr>
+<td colspan="2" rowspan="{php echo count($item['goods'])}" class='ops aops'>
+{template 'order/ops'}
+{if empty($item['statusvalue'])}
+{if $item['parentid'] == 0}
+{ifp 'order.op.close'}
+<a class='op'  data-toggle='ajaxModal' href="{php echo merchUrl('order/op/close',array('id'=>$item['id']))}" >关闭订单</a>
+{/if}
+{/if}
+{if $merch_user['changepricechecked'] == 1}
+{ifp 'order.op.changeprice'}
+<a class='op'  data-toggle='ajaxModal' href="{php echo merchUrl('order/op/changeprice',array('id'=>$item['id']))}">订单改价</a>
+{/if}
+{/if}
+{/if}
+{if !empty($item['refundid'])}
+<a class='op'  href="{php echo merchUrl('order/op/refund', array('id' => $item['id']))}" >维权{if $item['refundstate']>0}处理{else}详情{/if}</a>
+{/if}
+
+{if $item['statusvalue'] == 2 && !empty($item['addressid'])}
+{ifp 'order.op.send'}
+<a class="op" data-toggle="ajaxModal"  href="{php echo merchUrl('order/op/changeexpress', array('id' => $item['id']))}">修改物流</a>
+{/if}
+{/if}
+
+<a class='op'  href="{php echo merchUrl('order/detail', array('id' => $item['id']))}" >查看详情</a>
+{if $item['addressid']!=0 && $item['statusvalue']>=2}
+<a class='op'  data-toggle="ajaxModal" href="{php echo merchUrl('util/express', array('id' => $item['id'],'express'=>$item['express'],'expresssn'=>$item['expresssn']))}"   >物流信息</a>
+{/if}
+{ifp 'order.op.remarksaler'}
+<a class='op'  data-toggle="ajaxModal" href="{php echo merchUrl('order/op/remarksaler', array('id' => $item['id']))}" {if !empty($item['remarksaler'])}style='color:red'{/if} >备注</a>
+{/if}
+</td>
+</tr>
+{/loop}
+{if !empty($item['remark'])}
+<tr ><td colspan='8' style='background:#fdeeee;color:red;'>买家备注: {$item['remark']}</td></tr>
+{/if}
+
+{if !empty($level) && $merch_user['commissionchecked'] == 1}
+<tr style=";border-bottom:none;background:#f9f9f9;">
+<td colspan='4' style='text-align:left'>
+{if !empty($agentid)}
+<b>分销订单级别:</b> {$item['level']}级 <b>分销佣金:</b> {$item['commission']} 元
+
+{/if}
+</td>
+<td colspan='4' style='text-align:right'>
+{if empty($agentid)}
+{if $item['commission1']!=-1}<b>1级佣金:</b> {$item['commission1']} 元 {/if}
+{if $item['commission2']!=-1}<b>2级佣金:</b> {$item['commission2']} 元 {/if}
+{if $item['commission3']!=-1}<b>3级佣金:</b> {$item['commission3']} 元 {/if}
+{/if}
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</div>
+
+<div class="box active">
+{$pager}
+</div>
+{else}
+<div class='box'>
+<p>暂时没有任何订单！</p>
+</div>
+<!--<div class='box'>-->
+<!--<ul>-->
+<!--<li>-->
+<!--订单编号:  SH20180523094851044520-->
+<!--</li>-->
+<!--<li>-->
+<!--<img src=‘http://baihuoxcxsc.shenjiyan.com/attachment/images/1/2018/05/bUo3oY7Vo4iU446HH4ZVW7H72o16yE.jpg’ style=‘width:50px;height:50px;border:1px solid #ccc; padding:1px;’>-->
+<!--<span>生活用品</span>-->
+<!--</li>-->
+<!--<li>-->
+<!--<table class='table'>-->
+<!--<tr><td>订单状态</td><td rowspan="{php echo count($item['goods'])}" class='ops' style='line-height:20px;text-align:center'>待收货</td></tr>-->
+<!--<tr><td>下单时间</td><td>2018-05-23 &nbsp; 09:42:20</td></tr>-->
+<!--<tr><td>买家昵称</td><td>张&nbsp;1337111320</td></tr>-->
+<!--<tr><td>配送方式</td><td>快递</td></tr>-->
+<!--</table>-->
+<!--</li>-->
+<!--<li>-->
+<!--<p class='right'>共<span>1</span>个商品 实付：<span>￥50.00</span></p>-->
+<!--</li>-->
+<!--<li>-->
+<!--<button class='success'>确认收货</button>-->
+<!--<button class='introduct'>查看详情</button>-->
+<!--</li>-->
+<!--</ul>-->
+<!--</div>-->
+<!--<div class='box'>-->
+<!--<ul>-->
+<!--<li>-->
+<!--订单编号:  ME20180523092513674143-->
+<!--</li>-->
+<!--<li>-->
+<!--<img src='http://baihuoxcxsc.shenjiyan.com/attachment/images/1/merch/98/s6GwtH6TlJh0T9ltHl0hjuowY69JGn.png' style='width:50px;height:50px;border:1px solid #ccc; padding:1px;'>-->
+<!--<span>代理商测试商品</span>-->
+<!--</li>-->
+<!--<li>-->
+<!--<table class='table'>-->
+<!--<tr><td>订单状态</td><td>未支付</td></tr>-->
+<!--<tr><td>下单时间</td><td>2018-05-22 &nbsp; 09:42:20</td></tr>-->
+<!--<tr><td>买家昵称</td><td>测试 &nbsp;cesh测试</td></tr>-->
+<!--<tr><td>配送方式</td><td>快递</td></tr>-->
+<!--</table>-->
+<!--</li>-->
+<!--<li>-->
+<!--<p class='right'>共<span>1</span>个商品 实付：<span>￥10.00</span></p>-->
+<!--</li>-->
+<!--<li>-->
+<!--<button class='success'>确认付款</button>-->
+<!--<button class='introduct'>查看详情</button>-->
+<!--</li>-->
+<!--</ul>-->
+<!--</div>-->
+<!--<div class='box'>-->
+<!--<p>暂时没有任何订单！</p>-->
+<!--</div>-->
+<!--<div class='box'>-->
+<!--<p>暂时没有任何订单！</p>-->
+<!--</div>-->
+<!--<div class='box'>-->
+<!--<ul>-->
+<!--<li>订单编号:  SH20180523094851044520</li>-->
+<!--<li>-->
+<!--<img src=‘http://baihuoxcxsc.shenjiyan.com/attachment/images/1/2018/05/bUo3oY7Vo4iU446HH4ZVW7H72o16yE.jpg’ style=‘width:50px;height:50px;border:1px solid #ccc; padding:1px;’>-->
+<!--<span>生活用品</span>-->
+<!--</li>-->
+<!--<li>-->
+<!--<table class='table'>-->
+<!--<tr><td>订单状态</td><td>待收货</td></tr>-->
+<!--<tr><td>下单时间</td><td>2018-05-23 &nbsp; 09:42:20</td></tr>-->
+<!--<tr><td>买家昵称</td><td>张&nbsp;1337111320</td></tr>-->
+<!--<tr><td>配送方式</td><td>快递</td></tr>-->
+<!--</table>-->
+<!--</li>-->
+<!--<li>-->
+<!--<p class='right'>共<span>1</span>个商品 实付：<span>￥50.00</span></p>-->
+<!--</li>-->
+<!--<li>-->
+<!--<button class='success'>确认收货</button>-->
+<!--<button class='introduct'>查看详情</button>-->
+<!--</li>-->
+<!--</ul>-->
+<!--<ul>-->
+<!--<li>订单编号:  ME20180523092513674143</li>-->
+<!--<li>-->
+<!--<img src='http://baihuoxcxsc.shenjiyan.com/attachment/images/1/merch/98/s6GwtH6TlJh0T9ltHl0hjuowY69JGn.png' style='width:50px;height:50px;border:1px solid #ccc; padding:1px;'>-->
+<!--<span>代理商测试商品</span>-->
+<!--</li>-->
+<!--<li>-->
+<!--<table class='table'>-->
+<!--<tr><td>订单状态</td><td>未支付</td></tr>-->
+<!--<tr><td>下单时间</td><td>2018-05-22 &nbsp; 09:42:20</td></tr>-->
+<!--<tr><td>买家昵称</td><td>测试 &nbsp; cesh测试</td></tr>-->
+<!--<tr><td>配送方式</td><td>快递</td></tr>-->
+<!--</table>-->
+<!--</li>-->
+<!--<li>-->
+<!--<p class='right'>共<span>1</span>个商品 实付：<span>￥10.00</span></p>-->
+<!--</li>-->
+<!--<li>-->
+<!--<button class='success'>确认付款</button>-->
+<!--<button class='introduct'>查看详情</button>-->
+<!--</li>-->
+<!--</ul>-->
+<!--</div>-->
+<!--<div class='box'>-->
+<!--<p>暂时没有任何订单！</p>-->
+<!--</div>-->
+<!--<div class='box'>-->
+<!--<p>暂时没有任何订单！</p>-->
+<!--</div>-->
+</div>
+{/if}
+</section>
+<!--</body>-->
+</body>
+</html>
